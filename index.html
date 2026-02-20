@@ -1178,10 +1178,8 @@
     <div class="splash-line-bottom"></div>
 
     <div class="splash-content">
-
-        <!-- ✅ IMAGE APPEARANCE 1 — SPLASH SCREEN -->
         <div class="splash-photo-wrapper">
-            <img src="ALICE (1).png"
+            <img src="alice-hannah.jpg"
                  alt="Alice Hannah"
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div style="display:none; width:150px; height:150px; border-radius:50%; background:linear-gradient(135deg,#2c1810,#8b4513); border:4px solid #d4a853; align-items:center; justify-content:center; font-size:3rem;">✍️</div>
@@ -1270,10 +1268,8 @@
     <div class="container">
         <div class="about-grid">
             <div class="about-image-wrapper reveal">
-
-                <!-- ✅ IMAGE APPEARANCE 2 — ABOUT SECTION -->
                 <div class="about-photo-container">
-                    <img src="ALICE (1).png"
+                    <img src="alice-hannah.jpg"
                          alt="Alice Hannah - Book Marketing Expert"
                          onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg,#2c1810,#8b4513)'; this.parentElement.style.height='520px'; this.parentElement.style.borderRadius='20px'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
                     <div class="about-photo-overlay"></div>
@@ -1661,42 +1657,49 @@
             </div>
             <div class="contact-form reveal">
                 <h3>Send Me a Message</h3>
-                <form onsubmit="handleSubmit(event)">
+                <!-- ✅ ADDED FORMSPREE ACTION & METHOD -->
+                <form id="contact-form" action="https://formspree.io/f/xqeddvyw" method="POST" onsubmit="handleSubmit(event)">
                     <div class="form-row">
                         <div class="form-group">
                             <label>Your Name *</label>
-                            <input type="text" placeholder="Your full name" required>
+                            <!-- ✅ ADDED name="name" -->
+                            <input type="text" name="name" placeholder="Your full name" required>
                         </div>
                         <div class="form-group">
                             <label>Email Address *</label>
-                            <input type="email" placeholder="your@email.com" required>
+                            <!-- ✅ ADDED name="email" -->
+                            <input type="email" name="email" placeholder="your@email.com" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Book Title</label>
-                        <input type="text" placeholder="Title of your book">
+                        <!-- ✅ ADDED name="book_title" -->
+                        <input type="text" name="book_title" placeholder="Title of your book">
                     </div>
                     <div class="form-group">
                         <label>Genre / Category</label>
-                        <input type="text" placeholder="e.g. Fiction, Self-Help, Romance...">
+                        <!-- ✅ ADDED name="genre" -->
+                        <input type="text" name="genre" placeholder="e.g. Fiction, Self-Help, Romance...">
                     </div>
                     <div class="form-group">
                         <label>Service You're Interested In *</label>
-                        <select required>
+                        <!-- ✅ ADDED name="service" -->
+                        <select name="service" required>
                             <option value="">Select a service...</option>
-                            <option>Book Launch Strategy & Management</option>
-                            <option>Author Brand Development</option>
-                            <option>Book Promotion & Media Outreach</option>
-                            <option>Book Club Placement & Engagement</option>
-                            <option>Email Marketing & Community Building</option>
-                            <option>Targeted Digital Advertising</option>
-                            <option>Book Feature</option>
-                            <option>Full Marketing Package</option>
+                            <option value="Book Launch Strategy & Management">Book Launch Strategy & Management</option>
+                            <option value="Author Brand Development">Author Brand Development</option>
+                            <option value="Book Promotion & Media Outreach">Book Promotion & Media Outreach</option>
+                            <option value="Book Club Placement & Engagement">Book Club Placement & Engagement</option>
+                            <option value="Email Marketing & Community Building">Email Marketing & Community Building</option>
+                            <option value="Targeted Digital Advertising">Targeted Digital Advertising</option>
+                            <option value="Book Feature">Book Feature</option>
+                            <option value="Full Marketing Package">Full Marketing Package</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Tell Me About Your Book & Goals *</label>
-                        <textarea placeholder="Share a brief description of your book, where you are in the publishing process, and what you most want to achieve with your marketing..." required></textarea>
+                        <!-- ✅ ADDED name="message" -->
+                        <textarea name="message" placeholder="Share a brief description of your book, where you are in the publishing process, and what you most want to achieve with your marketing..." required></textarea>
                     </div>
                     <button type="submit" class="form-submit">Send My Message ✦</button>
                 </form>
@@ -1785,18 +1788,49 @@
     }, { threshold: 0.1 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    // FORM
-    function handleSubmit(e) {
-        e.preventDefault();
-        const btn = e.target.querySelector('.form-submit');
-        btn.textContent = '✓ Message Sent! I will be in touch soon.';
-        btn.style.background = '#2d7a2d';
+    // ✅ UPDATED FORM SUBMISSION (CONNECTS TO FORMSPREE IN THE BACKGROUND)
+    async function handleSubmit(e) {
+        e.preventDefault(); // Stop normal redirect
+        
+        const form = e.target;
+        const btn = form.querySelector('.form-submit');
+        
+        // Show sending state
+        const originalText = btn.textContent;
+        btn.textContent = 'Sending...';
         btn.disabled = true;
+
+        try {
+            // Send data to Formspree silently
+            const response = await fetch(form.action, {
+                method: form.method,
+                body: new FormData(form),
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Success
+                btn.textContent = '✓ Message Sent! I will be in touch soon.';
+                btn.style.background = '#2d7a2d';
+                form.reset(); // Clear the form
+            } else {
+                // Formspree returned an error
+                btn.textContent = 'Oops! There was a problem.';
+                btn.style.background = '#d9534f';
+            }
+        } catch (error) {
+            // Network error
+            btn.textContent = 'Oops! There was a problem.';
+            btn.style.background = '#d9534f';
+        }
+
+        // Reset button back to normal after 5 seconds
         setTimeout(() => {
             btn.textContent = 'Send My Message ✦';
-            btn.style.background = '';
+            btn.style.background = ''; // Resets to CSS default
             btn.disabled = false;
-            e.target.reset();
         }, 5000);
     }
 
